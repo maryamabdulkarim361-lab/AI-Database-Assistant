@@ -350,4 +350,664 @@ The demonstration database contains business-oriented entities such as:
 └──────┬───────┘
        │
        │
-      
+       ▼
+┌──────────────┐
+│    Orders    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Order Items  │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   Products   │
+└──────────────┘
+
+
+┌──────────────┐
+│   Payments   │
+└──────────────┘
+
+
+┌──────────────┐
+│Website Events│
+└──────────────┘
+```
+
+The schema is designed around normalized relational data with appropriate:
+
+- Primary keys
+- Foreign keys
+- Constraints
+- Indexes
+- Relationships
+
+---
+
+# 🔎 Schema Explorer
+
+<p align="center">
+  <img src="docs/screenshots/schema-explorer.png" width="100%">
+</p>
+
+The schema explorer allows users to understand the available database structure before asking analytical questions.
+
+Users can inspect:
+
+- Tables
+- Columns
+- Data types
+- Relationships
+- Available fields
+
+This helps the AI query-generation layer work with the actual database schema.
+
+---
+
+# 📝 Query History
+
+<p align="center">
+  <img src="docs/screenshots/query-history.png" width="100%">
+</p>
+
+The application keeps track of previous database questions and their generated queries.
+
+A query history record can contain:
+
+```text
+User Question
+      +
+Generated SQL
+      +
+Execution Result
+      +
+Execution Metadata
+      +
+Timestamp
+```
+
+This makes the system useful not only as an AI interface but also as a practical analytics workspace.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                         ┌───────────────┐
+                         │     User      │
+                         └───────┬───────┘
+                                 │
+                                 ▼
+                     ┌─────────────────────┐
+                     │   React Frontend    │
+                     │ TypeScript + Vite   │
+                     └──────────┬──────────┘
+                                │
+                                │ REST API
+                                ▼
+                     ┌─────────────────────┐
+                     │   Django REST API   │
+                     └──────────┬──────────┘
+                                │
+                 ┌──────────────┼──────────────┐
+                 │              │              │
+                 ▼              ▼              ▼
+          ┌────────────┐ ┌────────────┐ ┌─────────────┐
+          │ AI Service │ │ Query      │ │ Schema      │
+          │            │ │ Validator  │ │ Explorer    │
+          └─────┬──────┘ └─────┬──────┘ └─────────────┘
+                │              │
+                └───────┬──────┘
+                        ▼
+               ┌──────────────────┐
+               │    PostgreSQL    │
+               │                  │
+               │ Customers        │
+               │ Orders           │
+               │ Products         │
+               │ Payments         │
+               │ Events           │
+               └──────────────────┘
+```
+
+---
+
+# 🧰 Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python |
+| Framework | Django |
+| API | Django REST Framework |
+| Database | PostgreSQL |
+| Database Driver | psycopg |
+| Validation | Pydantic |
+| Frontend | React |
+| Language | TypeScript |
+| Build Tool | Vite |
+| Styling | Tailwind CSS |
+| AI | OpenAI-compatible provider abstraction |
+| Containers | Docker |
+| Testing | Pytest / Django testing |
+| CI/CD | GitHub Actions |
+
+---
+
+# 🔌 AI Provider Architecture
+
+The AI layer is designed around a provider abstraction rather than tightly coupling the application to a single model provider.
+
+```text
+                 AI Service
+                     │
+                     ▼
+            ┌─────────────────┐
+            │ Provider Layer  │
+            └────────┬────────┘
+                     │
+          ┌──────────┴──────────┐
+          │                     │
+          ▼                     ▼
+ OpenAI-Compatible        Mock / Demo
+    Provider                Provider
+```
+
+This makes it possible to change or extend AI providers without redesigning the application.
+
+---
+
+# 🛡️ Safe Database Access
+
+The analytics workflow follows a controlled pattern:
+
+```text
+Natural Language
+      ↓
+AI
+      ↓
+SQL
+      ↓
+Validation
+      ↓
+Read-only Analytics Rules
+      ↓
+Query Limits
+      ↓
+PostgreSQL
+      ↓
+Results
+```
+
+The application does **not** simply send unrestricted AI-generated SQL directly to the database.
+
+---
+
+# 🔑 Environment Configuration
+
+Sensitive credentials should be supplied through environment variables.
+
+Example:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/database
+AI_API_KEY=your_api_key
+AI_MODEL=your_model
+DJANGO_SECRET_KEY=your_secret_key
+```
+
+Never commit real credentials or API keys to GitHub.
+
+A demo/mock mode can be used without requiring a production AI API key.
+
+---
+
+# 🐳 Docker
+
+The project can be run through Docker for a reproducible development environment.
+
+Typical services:
+
+```text
+┌────────────────────┐
+│ Frontend Container │
+└─────────┬──────────┘
+          │
+┌─────────▼──────────┐
+│ Django API         │
+└─────────┬──────────┘
+          │
+┌─────────▼──────────┐
+│ PostgreSQL         │
+└────────────────────┘
+```
+
+---
+
+# 🧪 Testing
+
+The project includes testing around important application components.
+
+Areas include:
+
+```text
+API Endpoints
+Authentication
+Database Operations
+SQL Validation
+AI Service
+Query Execution
+Schema Access
+Error Handling
+```
+
+Example workflow:
+
+```text
+User Question
+      ↓
+AI Service
+      ↓
+Generated SQL
+      ↓
+Validator
+      ↓
+Database
+      ↓
+Expected Result
+```
+
+---
+
+# 📈 Example Analytics Questions
+
+The application can be designed to answer questions such as:
+
+```text
+"What were our monthly sales?"
+
+"Which products generate the most revenue?"
+
+"Who are our top customers?"
+
+"What is the average order value?"
+
+"Which category has the highest revenue?"
+
+"How many orders were placed this month?"
+
+"Show revenue growth over time."
+
+"Which customers have never placed an order?"
+```
+
+The goal is to make database analytics accessible through natural language while keeping SQL visible and inspectable.
+
+---
+
+# 📂 Project Structure
+
+```text
+ai-database-assistant/
+│
+├── backend/
+│   ├── config/
+│   ├── apps/
+│   │   ├── accounts/
+│   │   ├── database/
+│   │   ├── queries/
+│   │   ├── analytics/
+│   │   └── ai/
+│   │
+│   ├── manage.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── types/
+│   │
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── database/
+│   ├── schema.sql
+│   └── seed/
+│
+├── docs/
+│   └── screenshots/
+│
+├── tests/
+│
+├── docker-compose.yml
+├── .env.example
+├── README.md
+└── .github/
+    └── workflows/
+```
+
+> Adjust the structure to match the actual Antigravity-generated repository if your implementation differs.
+
+---
+
+# 🚀 Getting Started
+
+## Requirements
+
+```text
+Python 3.12+
+Node.js
+PostgreSQL
+Git
+Docker (optional)
+```
+
+---
+
+## 1. Clone
+
+```bash
+git clone <your-repository-url>
+cd ai-database-assistant
+```
+
+---
+
+## 2. Configure Environment
+
+Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+Configure the required database and AI settings.
+
+---
+
+## 3. Start PostgreSQL
+
+If using Docker:
+
+```bash
+docker compose up -d
+```
+
+---
+
+## 4. Start Backend
+
+```bash
+cd backend
+
+python -m venv .venv
+```
+
+Activate the environment:
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run migrations:
+
+```bash
+python manage.py migrate
+```
+
+Start Django:
+
+```bash
+python manage.py runserver
+```
+
+---
+
+## 5. Start Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+# 📸 Screenshots
+
+Store project screenshots in:
+
+```text
+docs/screenshots/
+```
+
+Recommended screenshots:
+
+```text
+docs/screenshots/
+├── hero.png
+├── ai-query.png
+├── query-results.png
+├── dashboard.png
+├── schema-explorer.png
+├── query-history.png
+├── sql-viewer.png
+├── login.png
+└── responsive.png
+```
+
+The README should prioritize screenshots of the **actual running application** rather than placeholder graphics.
+
+---
+
+# 📊 Engineering Highlights
+
+## AI Engineering
+
+- Natural language database interaction
+- AI-generated SQL
+- Provider abstraction
+- Prompt-based schema-aware query generation
+- AI result explanation
+- Mock/demo AI mode
+
+## Database Engineering
+
+- PostgreSQL
+- Relational schema design
+- Normalization
+- Foreign keys
+- Constraints
+- Indexing
+- CTEs
+- Window functions
+- Query optimization
+- `EXPLAIN ANALYZE`
+
+## Backend Engineering
+
+- Django
+- Django REST Framework
+- API design
+- Authentication
+- Query execution
+- Validation
+- Error handling
+- Query history
+
+## Frontend Engineering
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Interactive analytics
+- Tables
+- Charts
+- Schema explorer
+
+## DevOps
+
+- Docker
+- Environment configuration
+- GitHub Actions
+- Automated testing
+- Reproducible development environment
+
+---
+
+# 🔮 Future Roadmap
+
+### Phase 1 — Core Platform
+
+- [x] PostgreSQL integration
+- [x] Natural language query workflow
+- [x] SQL validation
+- [x] Query execution
+- [x] Query history
+- [x] Schema exploration
+
+### Phase 2 — Analytics
+
+- [ ] Advanced dashboard widgets
+- [ ] Saved reports
+- [ ] Export to CSV
+- [ ] Scheduled reports
+- [ ] Custom chart builder
+
+### Phase 3 — AI
+
+- [ ] Multi-model support
+- [ ] Improved SQL generation
+- [ ] Query correction
+- [ ] Follow-up questions
+- [ ] Conversational analytics
+- [ ] Automatic insight detection
+
+### Phase 4 — Production
+
+- [ ] Role-based access control
+- [ ] Audit logging
+- [ ] Advanced observability
+- [ ] Query cost monitoring
+- [ ] Rate limiting
+- [ ] Production deployment
+
+---
+
+# 🎯 Why This Project?
+
+AI can generate SQL, but a useful production-oriented system requires much more than sending a prompt to an LLM.
+
+This project explores the engineering layers required to build a safer and more practical AI database interface:
+
+```text
+       AI
+       │
+       ▼
+   SQL Generation
+       │
+       ▼
+    Validation
+       │
+       ▼
+  Database Access
+       │
+       ▼
+ Query Optimization
+       │
+       ▼
+ Analytics
+       │
+       ▼
+ User-Friendly Insights
+```
+
+It combines:
+
+**AI Engineering + Backend Engineering + Database Engineering + Full-Stack Development**
+
+---
+
+# 📚 Skills Demonstrated
+
+```text
+Python
+Django
+Django REST Framework
+PostgreSQL
+SQL
+Database Design
+Query Optimization
+AI / LLM Integration
+Natural Language → SQL
+React
+TypeScript
+REST APIs
+Authentication
+Docker
+Testing
+GitHub Actions
+```
+
+---
+
+# 🤝 Contributing
+
+Contributions, ideas, and improvements are welcome.
+
+Typical workflow:
+
+```bash
+git clone <repository-url>
+git checkout -b feature/your-feature
+```
+
+Make your changes, test them, and submit a pull request.
+
+---
+
+# 📄 License
+
+Add the license appropriate for your project.
+
+If this is a portfolio or proprietary project, choose the license according to how you intend others to use the code.
+
+---
+
+# 👩‍💻 Author
+
+**Maryam Abdul Karim**
+
+AI Engineer | Machine Learning | AI Agents | RAG | Python | Django
+
+Building intelligent systems that combine:
+
+**AI + Data + Software Engineering + Real-World Applications**
+
+---
+
+<p align="center">
+  <strong>⭐ If you find this project interesting, consider giving the repository a star.</strong>
+</p>
+
+<p align="center">
+  Built with Python, Django, PostgreSQL, React & AI
+</p>
